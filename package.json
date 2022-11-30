@@ -1,6 +1,6 @@
 {
   "name": "draw-poster",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "用于在浏览器端通过canvas绘制海报",
   "main": "./src/index.ts",
   "keywords": ["canvas", "poster", "draw"],
@@ -20,7 +20,7 @@
     "url": "https://github.com/839900146/uniapp-fs.git"
   },
   "engines": {
-    "node": "12"
+    "node": ">=12"
   },
   "types": "./index.d.ts"
 }
