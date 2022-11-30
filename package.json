@@ -1,0 +1,26 @@
+{
+  "name": "draw-poster",
+  "version": "1.0.0",
+  "description": "用于在浏览器端通过canvas绘制海报",
+  "main": "index.ts",
+  "keywords": ["canvas", "poster", "draw"],
+  "author": {
+    "name": "黄某",
+    "email": "839900146@qq.com",
+    "url": "https://github.com/839900146/uniapp-fs.git"
+  },
+  "homepage": "https://github.com/839900146/uniapp-fs.git",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/839900146/draw-poster/issues",
+    "email": "839900146@qq.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/839900146/uniapp-fs.git"
+  },
+  "engines": {
+    "node": "12"
+  },
+  "types": "./index.d.ts"
+}

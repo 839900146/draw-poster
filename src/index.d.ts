@@ -21,7 +21,6 @@ export type TDrawConfig = {
         borderColor?: string
         borderWidth?: number
         fillColor?: string
-        level?: 'top' | 'bottom'
         textAlign?: 'middle'
     }
 }
