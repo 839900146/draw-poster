@@ -74,12 +74,45 @@ export type TDrawConfig = {
         textAlign?: 'middle'
     }
 }
-
-type draw = (config: TDrawConfig[]) => void
 ```
 >当执行绘制时，会按照绘制参数的顺序进行绘制生成
 
+
+## 实例方法
+
+- **draw**：绘制
+```ts
+// 类型定义
+type draw = (config: TDrawConfig[]) => void
+```
+
+- **export**：导出
+```ts
+// 类型定义
+type export = (type: 'base64', filename?: string) => void
+
+// 导出为base64
+let base64 = draw.export('base64')
+
+// 导出为file对象
+let file = draw.export('file', 'test')
+```
+>如果导出的是一个file对象，则必须要传递第2个参数作为文件名
+
+- **clear**：清空画布
+```ts
+// 直接调用即可清空canvas
+draw.clear()
+```
+>清空后，canvas也会随之销毁，如果想要再重新绘制，有2中方法
+>1. 再次执行 `draw([绘制参数, ...])`，内部会自动启用上一次的构造参数来创建一个新的canvas实例，其实就相当于“重绘”
+>2. 重新 `new DrawPoster(...)` 并得到一个新的实例
+
+
 ## 示例
+
+- 完整实例可参考：[点击跳转](https://github.com/839900146/draw-poster/tree/main/public)
+
 ```ts
 import { DrawPoster } from '../dist/index.js'
 window.onload = () => {

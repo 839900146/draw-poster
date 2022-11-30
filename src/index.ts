@@ -1,9 +1,10 @@
 import type { TDrawPosterOptions, TDrawConfig } from './index.d';
 
 export class DrawPoster {
-    canvas!: HTMLCanvasElement;
+    canvas!: HTMLCanvasElement | null;
     ctx!: CanvasRenderingContext2D | null;
     root!: HTMLElement;
+    private __temp_opts__!: TDrawPosterOptions;
 
     constructor(opts: TDrawPosterOptions) {
         this.createCanvas(opts)
@@ -13,6 +14,9 @@ export class DrawPoster {
      * 创建canvas
      */
     createCanvas(opts: TDrawPosterOptions) {
+        if(!opts) return
+        this.clear()
+        this.__temp_opts__ = opts
         this.root = opts.root
         this.canvas = document.createElement('canvas')
         this.ctx = this.canvas.getContext('2d')
@@ -64,8 +68,10 @@ export class DrawPoster {
             if (!config.content || typeof config.content !== 'string') return
             let img = new Image()
             img.src = config.content
+            img.setAttribute("crossOrigin", 'Anonymous')
             img.onload = () => {
-                this.ctx?.beginPath()
+                if(!this.canvas || !this.ctx) return
+                this.ctx.beginPath()
                 if (config.style?.radio) {
                     if (!this.ctx) return
                     this.drawRoundedRect(
@@ -80,7 +86,7 @@ export class DrawPoster {
                     this.ctx.clip()
                 }
 
-                this.ctx?.drawImage(
+                this.ctx.drawImage(
                     img,
                     config.style?.left || 0,
                     config.style?.top || 0,
@@ -153,14 +159,14 @@ export class DrawPoster {
      */
     drawText(config: TDrawConfig) {
         return new Promise((resolve) => {
-            if (!config.content || !this.ctx) return
+            if (!config.content || !this.ctx || !this.canvas) return
 
             let top = config.style?.top || 0
             let left = config.style?.left || 0
             this.ctx!.globalCompositeOperation = 'source-over'
             this.ctx!.font = `${config.style?.fontSize || 16}px 宋体`
             this.ctx!.fillStyle = config.style?.color || '#000'
-            if(config.style?.textAlign === 'middle') {
+            if (config.style?.textAlign === 'middle') {
                 this.ctx!.textBaseline = "middle"
                 let fix = this.ctx.measureText(String(config.content)).actualBoundingBoxDescent
                 this.ctx?.fillText(
@@ -186,6 +192,9 @@ export class DrawPoster {
      * 绘制方法入口
      */
     async draw(config: TDrawConfig[]) {
+        if((!this.canvas || !this.ctx) && this.__temp_opts__) {
+            this.createCanvas(this.__temp_opts__)
+        }
         for (let i = 0; i < config.length; i++) {
             let item = config[i]
             this.ctx?.restore()
@@ -197,4 +206,40 @@ export class DrawPoster {
         }
     }
 
+    /**
+     * 导出
+     */
+    export(type: 'base64' | 'file', filename?: string) {
+        if (!this.canvas) return
+
+        if (type === 'base64') {
+            return this.canvas.toDataURL('image/jpeg')
+        }
+
+        if (type === 'file' && filename) {
+            let base64 = this.canvas.toDataURL('image/jpeg')
+            const arr = base64.split(',')
+            const bstr = window.atob(arr[1])
+            let n = bstr.length
+            const uint8arr = new Uint8Array(n)
+            while (n--) {
+                uint8arr[n] = bstr.charCodeAt(n)
+            }
+            return new File([uint8arr], `${filename}.jpeg`, {
+                type: 'image/jpeg',
+            })
+        }
+    }
+
+    /**
+     * 清空canvas
+     */
+    clear() {
+        if (this.ctx && this.canvas) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+            this.canvas.parentNode?.removeChild(this.canvas)
+            this.ctx = null
+            this.canvas = null
+        }
+    }
 }
