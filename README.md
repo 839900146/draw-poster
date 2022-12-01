@@ -27,6 +27,8 @@ export type TDrawPosterOptions = {
     width?: number
     // canvas的高度
     height?: number
+    // dpi 像素比，也可以理解为放大倍数
+    dpi?: number
 }
 ```
 >如果不传递width或height，则默认采用容器的width、height

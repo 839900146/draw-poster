@@ -3,6 +3,7 @@ type TDrawPosterOptions = {
     root: HTMLElement
     width?: number
     height?: number
+    dpi?: number
 }
 
 type TDrawTypes = 'image' | 'text' | 'rect' | 'line'
@@ -31,6 +32,7 @@ export class DrawPoster {
     private ctx!: CanvasRenderingContext2D | null;
     private root!: HTMLElement;
     private __temp_opts__!: TDrawPosterOptions;
+    dpi!: number
 
     constructor(opts: TDrawPosterOptions) {
         this.createCanvas(opts)
@@ -46,6 +48,7 @@ export class DrawPoster {
         this.root = opts.root
         this.canvas = document.createElement('canvas')
         this.ctx = this.canvas.getContext('2d')
+        this.dpi = opts.dpi || 1
 
         if (opts.width || opts.height) {
             if (opts.width) this.canvas.width = opts.width
@@ -55,6 +58,12 @@ export class DrawPoster {
             this.canvas.width = width
             this.canvas.height = height
         }
+
+        if(this.dpi >= 1) {
+            this.canvas.width = this.canvas.width * this.dpi
+            this.canvas.height = this.canvas.height * this.dpi
+        }
+
         this.root.appendChild(this.canvas)
     }
 
@@ -221,6 +230,8 @@ export class DrawPoster {
         if ((!this.canvas || !this.ctx) && this.__temp_opts__) {
             this.createCanvas(this.__temp_opts__)
         }
+        this.handleDpi(config)
+        console.debug(config)
         for (let i = 0; i < config.length; i++) {
             let item = config[i]
             this.ctx?.restore()
@@ -244,9 +255,7 @@ export class DrawPoster {
 
         if (type === 'blob') {
             let base64 = this.canvas.toDataURL('image/jpeg')
-            let b = this.base64ToBlob(base64)
-            console.debug(b)
-            return b
+            return this.base64ToBlob(base64)
         }
 
         if (type === 'file' && filename) {
@@ -323,5 +332,21 @@ export class DrawPoster {
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
+    }
+
+    /**
+     * 处理像素dpi
+     */
+    async handleDpi(config: TDrawConfig[]) {
+        if(typeof this.dpi !== 'number' || this.dpi < 1) return
+        config.forEach(item => {
+            Object.keys(item.style || Object.create(null)).forEach((key) => {
+                // @ts-ignore
+                if(typeof item.style?.[key] === 'number') {
+                    // @ts-ignore
+                    item.style[key] = (item.style?.[key] || 0) * this.dpi
+                }
+            })
+        })
     }
 }

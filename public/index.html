@@ -8,17 +8,17 @@
     <title>海报绘制</title>
     <style>
         .draw-area {
-            width: 400px;
-            height: 700px;
             box-sizing: border-box;
-            background-color: orange;
         }
     </style>
     <script type="module">
         import { DrawPoster } from '../dist/index.js'
         window.onload = async () => {
             const draw = new DrawPoster({
-                root: document.querySelector('.draw-area')
+                root: document.querySelector('.draw-area'),
+                dpi: 1,
+                width: 400,
+                height: 700
             })
 
 
