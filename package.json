@@ -1,6 +1,6 @@
 {
   "name": "draw-poster",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "用于在浏览器端通过canvas绘制海报",
   "main": "./src/index.ts",
   "keywords": ["canvas", "poster", "draw"],

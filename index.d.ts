@@ -1,12 +1,12 @@
-export type TDrawPosterOptions = {
+type TDrawPosterOptions = {
     root: HTMLElement
     width?: number
     height?: number
 }
 
-export type TDrawTypes = 'image' | 'text' | 'rect' | 'line'
+type TDrawTypes = 'image' | 'text' | 'rect' | 'line'
 
-export type TDrawConfig = {
+type TDrawConfig = {
     type: TDrawTypes,
     content?: string | number | boolean
     style?: {

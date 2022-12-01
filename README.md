@@ -86,18 +86,26 @@ export type TDrawConfig = {
 type draw = (config: TDrawConfig[]) => void
 ```
 
+---
+
 - **export**：导出
 ```ts
 // 类型定义
-type export = (type: 'base64', filename?: string) => void
+type export = (type: 'base64' | 'file' | 'blob', filename?: string) => void
 
 // 导出为base64
 let base64 = draw.export('base64')
 
 // 导出为file对象
 let file = draw.export('file', 'test')
+
+// 导出为blob对象
+let blob = draw.export('blob')
 ```
 >如果导出的是一个file对象，则必须要传递第2个参数作为文件名
+
+---
+
 
 - **clear**：清空画布
 ```ts
@@ -108,6 +116,49 @@ draw.clear()
 >1. 再次执行 `draw([绘制参数, ...])`，内部会自动启用上一次的构造参数来创建一个新的canvas实例，其实就相当于“重绘”
 >2. 重新 `new DrawPoster(...)` 并得到一个新的实例
 
+---
+
+- **download**：下载图像
+```ts
+// draw.download(数据类型，数据，文件名)
+type TDownload = (type: 'base64' | 'file' | 'blob', data: any, filename: string) => void
+
+let blob = draw.export('blob')
+
+draw.download('blob', blob, 'test-blob.jpeg')
+```
+>1. type是要下载的这个数据的类型
+>2. data是要下载的数据
+>3. 文件名，**必须要写文件后缀**
+
+---
+
+- **base64ToBlob**：base64转blob
+```ts
+type base64ToBlob = (dataurl: string) => Blob
+
+draw.base64ToBlob('base64 str...')
+```
+
+---
+
+- **blobToFile**：blob转file对象
+```ts
+type blobToFile = (blob: any, filename: string) => File
+
+draw.blobToFile(new Blob(['abc']), 'test1.txt')
+```
+
+---
+
+- **fileToBlob**：file转blob对象
+```ts
+type fileToBlob = (file: File) => Promise<Blob>
+
+draw.fileToBlob(/** file文件对象 */, 'test1.txt')
+```
+
+---
 
 ## 示例
 

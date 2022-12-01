@@ -1,9 +1,8 @@
-import type { TDrawPosterOptions, TDrawConfig } from './index.d';
 
 export class DrawPoster {
-    canvas!: HTMLCanvasElement | null;
-    ctx!: CanvasRenderingContext2D | null;
-    root!: HTMLElement;
+    private canvas!: HTMLCanvasElement | null;
+    private ctx!: CanvasRenderingContext2D | null;
+    private root!: HTMLElement;
     private __temp_opts__!: TDrawPosterOptions;
 
     constructor(opts: TDrawPosterOptions) {
@@ -13,8 +12,8 @@ export class DrawPoster {
     /**
      * 创建canvas
      */
-    createCanvas(opts: TDrawPosterOptions) {
-        if(!opts) return
+    private createCanvas(opts: TDrawPosterOptions) {
+        if (!opts) return
         this.clear()
         this.__temp_opts__ = opts
         this.root = opts.root
@@ -35,7 +34,7 @@ export class DrawPoster {
     /**
      * 获取元素的宽高、位置
      */
-    computerElementSize(el: HTMLElement) {
+    private computerElementSize(el: HTMLElement) {
         let { offsetWidth, offsetHeight, offsetLeft, offsetTop } = el
         return {
             height: offsetHeight,
@@ -70,7 +69,7 @@ export class DrawPoster {
             img.src = config.content
             img.setAttribute("crossOrigin", 'Anonymous')
             img.onload = () => {
-                if(!this.canvas || !this.ctx) return
+                if (!this.canvas || !this.ctx) return
                 this.ctx.beginPath()
                 if (config.style?.radio) {
                     if (!this.ctx) return
@@ -192,7 +191,7 @@ export class DrawPoster {
      * 绘制方法入口
      */
     async draw(config: TDrawConfig[]) {
-        if((!this.canvas || !this.ctx) && this.__temp_opts__) {
+        if ((!this.canvas || !this.ctx) && this.__temp_opts__) {
             this.createCanvas(this.__temp_opts__)
         }
         for (let i = 0; i < config.length; i++) {
@@ -209,25 +208,22 @@ export class DrawPoster {
     /**
      * 导出
      */
-    export(type: 'base64' | 'file', filename?: string) {
+    export(type: 'base64' | 'file' | 'blob', filename?: string) {
         if (!this.canvas) return
 
         if (type === 'base64') {
             return this.canvas.toDataURL('image/jpeg')
         }
 
+        if (type === 'blob') {
+            let base64 = this.canvas.toDataURL('image/jpeg')
+            return this.base64ToBlob(base64)
+        }
+
         if (type === 'file' && filename) {
             let base64 = this.canvas.toDataURL('image/jpeg')
-            const arr = base64.split(',')
-            const bstr = window.atob(arr[1])
-            let n = bstr.length
-            const uint8arr = new Uint8Array(n)
-            while (n--) {
-                uint8arr[n] = bstr.charCodeAt(n)
-            }
-            return new File([uint8arr], `${filename}.jpeg`, {
-                type: 'image/jpeg',
-            })
+            let blob = this.base64ToBlob(base64)
+            return this.blobToFile(blob, `${filename}.jpeg`)
         }
     }
 
@@ -241,5 +237,62 @@ export class DrawPoster {
             this.ctx = null
             this.canvas = null
         }
+    }
+
+    /**
+     * base64转blob
+     */
+    base64ToBlob(dataurl: string) {
+        let arr = dataurl.split(","),
+            mime = arr[0].match(/:(.*?);/)?.[1] || '',
+            bstr = window.atob(arr[1]),
+            n = bstr.length,
+            u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    }
+
+    /**
+     * blob转file
+     */
+    blobToFile(blob: any, filename: string) {
+        blob.lastModifiedDate = new Date();
+        blob.name = filename;
+        return blob as File;
+    }
+
+    /**
+     * file转blob
+     */
+    fileToBlob(file: File) {
+        if (!file || !(file instanceof File)) return
+        return new Promise<Blob>((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const blob = new Blob([new Uint8Array(e.target!.result as ArrayBuffer)], { type: file.type });
+                resolve(blob)
+            };
+            reader.readAsArrayBuffer(file);
+        })
+    }
+
+    /**
+     * 浏览器下载
+     */
+    async download(type: 'base64' | 'file' | 'blob', data: any, filename: string) {
+        let blob = data
+        if (type === 'base64') blob = this.base64ToBlob(data)
+        if (type === 'file') blob = await this.fileToBlob(data)
+        if(!(data instanceof Blob)) throw new TypeError('data type is not base64 || file || blob')
+        const url = window.URL.createObjectURL(blob)
+        let a = document.createElement('a')
+        a.href = url
+        a.download = filename
+        a.target = '_blank'
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
     }
 }
