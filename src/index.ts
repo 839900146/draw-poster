@@ -59,7 +59,7 @@ export class DrawPoster {
             this.canvas.height = height
         }
 
-        if(this.dpi >= 1) {
+        if (this.dpi >= 1) {
             this.canvas.width = this.canvas.width * this.dpi
             this.canvas.height = this.canvas.height * this.dpi
         }
@@ -166,7 +166,7 @@ export class DrawPoster {
      * 绘制矩形
      */
     drawRect(config: TDrawConfig) {
-        
+
         return new Promise(async (resolve) => {
             if (!this.canvas || !this.ctx) return resolve(false)
             let top = config.style?.top || 0
@@ -198,7 +198,6 @@ export class DrawPoster {
                 await this.drawText({
                     ...config,
                     style: {
-                        fontSize: 12 * this.dpi,
                         ...(config.style || {}),
                     }
                 })
@@ -248,14 +247,14 @@ export class DrawPoster {
         if ((!this.canvas || !this.ctx) && this.__temp_opts__) {
             this.createCanvas(this.__temp_opts__)
         }
-        this.handleDpi(config)
+        this.ctx?.scale(this.dpi, this.dpi)
         for (let i = 0; i < config.length; i++) {
             let item = config[i]
             this.ctx?.restore()
             if (item.type === 'image') await this.drawImage(item)
-            if (item.type === 'text') await this.drawText(item)
-            if (item.type === 'line') await this.drawLine(item)
-            if (item.type === 'rect') await this.drawRect(item)
+            if (item.type === 'text') this.drawText(item)
+            if (item.type === 'line') this.drawLine(item)
+            if (item.type === 'rect') this.drawRect(item)
         }
     }
 
@@ -348,21 +347,5 @@ export class DrawPoster {
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
-    }
-
-    /**
-     * 处理像素dpi
-     */
-    async handleDpi(config: TDrawConfig[]) {
-        if(typeof this.dpi !== 'number' || this.dpi < 1) return
-        config.forEach(item => {
-            Object.keys(item.style || Object.create(null)).forEach((key) => {
-                // @ts-ignore
-                if(typeof item.style?.[key] === 'number') {
-                    // @ts-ignore
-                    item.style[key] = (item.style?.[key] || 0) * this.dpi
-                }
-            })
-        })
     }
 }

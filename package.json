@@ -1,6 +1,6 @@
 {
   "name": "draw-poster",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "用于在浏览器端通过canvas绘制海报",
   "main": "dist/index.js",
   "module": "dist/index.js",
