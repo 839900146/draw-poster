@@ -166,25 +166,43 @@ export class DrawPoster {
      * 绘制矩形
      */
     drawRect(config: TDrawConfig) {
+        
         return new Promise(async (resolve) => {
+            if (!this.canvas || !this.ctx) return resolve(false)
             let top = config.style?.top || 0
             let left = config.style?.left || 0
             let width = config.style?.width || 0
             let height = config.style?.height || 0
             this.ctx?.beginPath()
             this.ctx!.fillStyle = config.style?.fillColor || '#fff'
-            this.ctx?.fillRect(left, top, width, height)
+            if (config.style?.radio) {
+                if (!this.ctx) return
+                this.drawRoundedRect(
+                    this.ctx,
+                    config.style?.left || 0,
+                    config.style?.top || 0,
+                    config.style?.width || this.canvas.width,
+                    config.style?.height || this.canvas.height,
+                    config.style?.radio || 0
+                )
+                this.ctx.fill()
+                this.ctx.save()
+                this.ctx.clip()
+                this.ctx?.restore()
+            } else {
+                this.ctx?.fillRect(left, top, width, height)
+            }
+
 
             if (config.content) {
                 await this.drawText({
                     ...config,
                     style: {
+                        fontSize: 12 * this.dpi,
                         ...(config.style || {}),
-                        fontSize: 12
                     }
                 })
             }
-
             resolve(true)
         })
     }
@@ -231,11 +249,9 @@ export class DrawPoster {
             this.createCanvas(this.__temp_opts__)
         }
         this.handleDpi(config)
-        console.debug(config)
         for (let i = 0; i < config.length; i++) {
             let item = config[i]
             this.ctx?.restore()
-
             if (item.type === 'image') await this.drawImage(item)
             if (item.type === 'text') await this.drawText(item)
             if (item.type === 'line') await this.drawLine(item)
