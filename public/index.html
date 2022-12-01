@@ -26,6 +26,9 @@
             let btn0 = document.getElementById('btn0')
             let btn1 = document.getElementById('btn1')
             let btn2 = document.getElementById('btn2')
+            let btn3 = document.getElementById('btn3')
+            let btn4 = document.getElementById('btn4')
+            let btn5 = document.getElementById('btn5')
 
             btn0.onclick = async () => {
                 await draw.draw([
@@ -271,6 +274,18 @@
             btn2.onclick = () => {
                 draw.clear()
             }
+
+            btn3.onclick = () => {
+                draw.download('base64', draw.export('base64'), '1.jpeg')
+            }
+
+            btn4.onclick = () => {
+                draw.download('file', draw.export('file', 'file'), '1.jpeg')
+            }
+
+            btn5.onclick = () => {
+                draw.download('blob', draw.export('blob', 'file'), '1.jpeg')
+            }
         }
     </script>
 </head>
@@ -280,6 +295,9 @@
     <button id="btn0">绘制</button>
     <button id="btn1">点击导出</button>
     <button id="btn2">清除</button>
+    <button id="btn3">下载base64</button>
+    <button id="btn4">下载File</button>
+    <button id="btn5">下载Blob</button>
 </body>
 
 </html>

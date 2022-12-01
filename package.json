@@ -1,8 +1,10 @@
 {
   "name": "draw-poster",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "用于在浏览器端通过canvas绘制海报",
-  "main": "./src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
   "keywords": ["canvas", "poster", "draw"],
   "author": {
     "name": "黄某",
@@ -22,5 +24,11 @@
   "engines": {
     "node": ">=12"
   },
-  "types": "./index.d.ts"
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  }
 }

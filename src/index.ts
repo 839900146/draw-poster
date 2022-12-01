@@ -1,4 +1,31 @@
 
+type TDrawPosterOptions = {
+    root: HTMLElement
+    width?: number
+    height?: number
+}
+
+type TDrawTypes = 'image' | 'text' | 'rect' | 'line'
+
+type TDrawConfig = {
+    type: TDrawTypes,
+    content?: string | number | boolean
+    style?: {
+        width?: number
+        height?: number
+        top?: number
+        left?: number
+        radio?: number
+        backgroundColor?: string
+        color?: string
+        fontSize?: number
+        borderColor?: string
+        borderWidth?: number
+        fillColor?: string
+        textAlign?: 'middle'
+    }
+}
+
 export class DrawPoster {
     private canvas!: HTMLCanvasElement | null;
     private ctx!: CanvasRenderingContext2D | null;
@@ -208,7 +235,7 @@ export class DrawPoster {
     /**
      * 导出
      */
-    export(type: 'base64' | 'file' | 'blob', filename?: string) {
+    export(type: 'base64' | 'blob' | 'file', filename?: string): File | Blob | string | undefined {
         if (!this.canvas) return
 
         if (type === 'base64') {
@@ -217,7 +244,9 @@ export class DrawPoster {
 
         if (type === 'blob') {
             let base64 = this.canvas.toDataURL('image/jpeg')
-            return this.base64ToBlob(base64)
+            let b = this.base64ToBlob(base64)
+            console.debug(b)
+            return b
         }
 
         if (type === 'file' && filename) {
@@ -267,7 +296,7 @@ export class DrawPoster {
      * file转blob
      */
     fileToBlob(file: File) {
-        if (!file || !(file instanceof File)) return
+        if (!file) return
         return new Promise<Blob>((resolve) => {
             const reader = new FileReader();
             reader.onload = function (e) {
@@ -285,7 +314,7 @@ export class DrawPoster {
         let blob = data
         if (type === 'base64') blob = this.base64ToBlob(data)
         if (type === 'file') blob = await this.fileToBlob(data)
-        if(!(data instanceof Blob)) throw new TypeError('data type is not base64 || file || blob')
+        if (!(blob instanceof Blob)) throw new TypeError('data type is not base64 || file || blob')
         const url = window.URL.createObjectURL(blob)
         let a = document.createElement('a')
         a.href = url
